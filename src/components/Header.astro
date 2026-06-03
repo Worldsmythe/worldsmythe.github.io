@@ -14,7 +14,6 @@ const hasPathSlot = Astro.slots.has('path');
 
 <header class="chrome">
     <div class="bar">
-        <span class="bar__seg"><span class="dot"></span> {SITE_TAG}</span>
         <span class="bar__seg bar__grow">
             {hasPathSlot && <span class="bar__path"><slot name="path" /></span>}
             {!hasPathSlot && path && <span class="bar__path">{path}</span>}
@@ -25,7 +24,7 @@ const hasPathSlot = Astro.slots.has('path');
         <span class="bar__seg"><span class="dot dot--amber"></span> SIGNAL&nbsp;OK</span>
     </div>
     <nav class="nav">
-        <HeaderLink href="/">Index</HeaderLink>
+        <HeaderLink href="/" class="nav-brand"><span class="dot"></span>{SITE_TAG}</HeaderLink>
         <HeaderLink href="/blog">Log</HeaderLink>
         <HeaderLink href="/about">About</HeaderLink>
         <span class="nav__spacer"></span>
@@ -75,6 +74,21 @@ const hasPathSlot = Astro.slots.has('path');
         letter-spacing: 0.12em;
     }
     .nav__spacer { flex: 1; }
+
+    /* brand sits in the nav as the home button; plain links share one width */
+    .nav :global(.nav-brand) {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.6em;
+    }
+    .nav :global(.nav-brand .dot) {
+        background: currentColor;
+        box-shadow: none;
+    }
+    .nav :global(.nav-link:not(.nav-brand)) {
+        min-width: calc(2 * var(--gut) + 6.5ch);
+        text-align: center;
+    }
 
     @media (max-width: 600px) {
         .bar { flex-wrap: wrap; font-size: 0.68rem; }
