@@ -1,0 +1,26 @@
+{
+  "name": "",
+  "type": "module",
+  "version": "0.0.1",
+  "private": true,
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro"
+  },
+  "dependencies": {
+    "@astrojs/mdx": "^6.0.1",
+    "@astrojs/rss": "^4.0.18",
+    "@astrojs/sitemap": "^3.7.3",
+    "astro": "^6.4.3",
+    "hastscript": "^9.0.1",
+    "remark-directive": "^4.0.0",
+    "sharp": "^0.34.3",
+    "shiki": "^4.2.0",
+    "unist-util-visit": "^5.1.0"
+  }
+}

@@ -1,0 +1,52 @@
+---
+import { getCollection } from 'astro:content';
+import BaseHead from '../../components/BaseHead.astro';
+import Footer from '../../components/Footer.astro';
+import Header from '../../components/Header.astro';
+import { SITE_DESCRIPTION, SITE_TITLE } from '../../consts';
+
+const posts = (await getCollection('blog')).sort(
+    (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
+);
+
+function stampOf(date: Date): string {
+    return date.toISOString().slice(0, 10).replace(/-/g, '.');
+}
+---
+
+<!doctype html>
+<html lang="en">
+    <head>
+        <BaseHead title={`Log // ${SITE_TITLE}`} description={SITE_DESCRIPTION} />
+    </head>
+    <body>
+        <Header path="~/den/log" command="ls -lat" />
+        <main class="log-index">
+            <div class="shead">the log <span class="n">{posts.length} ENTRIES</span></div>
+            <ul class="log">
+                {posts.map((post, i) => (
+                    <li class="log__row">
+                        <div class="log__idx">{String(posts.length - i).padStart(3, '0')}</div>
+                        <div class="log__body">
+                            <div class="log__meta" transition:name={`meta-${post.id}`}>
+                                <span class="tag tag--lime">SIGNAL</span>
+                                <span>{stampOf(post.data.pubDate)}</span>
+                            </div>
+                            <h2 class="log__title" transition:name={`title-${post.id}`}><a href={`/blog/${post.id}/`}>{post.data.title}</a></h2>
+                            <p class="log__ex" transition:name={`dek-${post.id}`}>{post.data.description}</p>
+                        </div>
+                    </li>
+                ))}
+            </ul>
+        </main>
+        <Footer />
+    </body>
+</html>
+<style>
+    .log-index {
+        width: var(--content-wide);
+        max-width: 100%;
+        margin: 0 auto;
+        padding: var(--gut) var(--gut) 3em;
+    }
+</style>

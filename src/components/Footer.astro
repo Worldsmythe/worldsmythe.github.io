@@ -1,0 +1,52 @@
+---
+import { SITE_TITLE } from '../consts';
+
+const year = new Date().getFullYear();
+---
+
+<div class="eofbar" aria-hidden="true"><span class="eofbar__fill"></span></div>
+<footer class="foot">
+    <span>Worldsmythe &copy; {year}</span>
+    <span class="dim">// built for low light</span>
+    <span class="foot__r">EOF&nbsp;<span class="cur cur--lime"></span></span>
+</footer>
+<style>
+    .eofbar {
+        height: 30px;
+        border-top: var(--rule) solid var(--line);
+        overflow: hidden;
+    }
+    .eofbar__fill {
+        display: block;
+        width: 100%;
+        height: 100%;
+        color: var(--ink-mut);
+        background-image:
+            linear-gradient(45deg, currentColor 25%, transparent 25% 75%, currentColor 75%),
+            linear-gradient(45deg, currentColor 25%, transparent 25% 75%, currentColor 75%);
+        background-size: 3px 3px;
+        background-position: 0 0, 1.5px 1.5px;
+        -webkit-mask-image: linear-gradient(to top, #000, transparent);
+                mask-image: linear-gradient(to top, #000, transparent);
+    }
+
+    .foot {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 16px;
+        align-items: center;
+        padding: 18px var(--gut);
+        border-top: var(--rule) solid var(--line);
+        font-family: var(--font-mono-stack);
+        font-size: 0.72rem;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: var(--ink-mut);
+    }
+    .foot__r { margin-left: auto; }
+
+    @media (max-width: 600px) {
+        .foot { gap: 8px 14px; }
+        .foot__r { margin-left: 0; }
+    }
+</style>

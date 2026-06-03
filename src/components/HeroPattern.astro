@@ -1,0 +1,112 @@
+---
+interface Props {
+    seed?: string;
+    label?: string;
+}
+
+const { seed = '', label } = Astro.props;
+
+function hashSeed(input: string): number {
+    let hash = 5381;
+    for (let i = 0; i < input.length; i++) {
+        hash = ((hash << 5) + hash + input.charCodeAt(i)) >>> 0;
+    }
+    return hash;
+}
+
+const variants = [
+    { check: 'pattern-check-2', tint: 'pattern-dither-50' },
+    { check: 'pattern-check-4', tint: 'pattern-dither-25' },
+    { check: 'pattern-check-6', tint: 'pattern-dither-12' },
+    { check: 'pattern-check-8', tint: 'pattern-dither-25' },
+] as const;
+
+const hash = hashSeed(seed);
+const variant = variants[hash % variants.length];
+const slabOffset = (hash >> 4) % 3;
+---
+
+<div class="hero-pattern" data-variant={slabOffset}>
+    <div class={`hero-pattern__field ${variant.check}`}></div>
+    <div class={`hero-pattern__ramp ${variant.tint}`}></div>
+    <div class="hero-pattern__bar" aria-hidden="true">
+        <span class="hero-pattern__tag">[ TRANSMISSION ]</span>
+        {label && <span class="hero-pattern__label">{label}</span>}
+        <span class="hero-pattern__id">{(hash % 1000000).toString().padStart(6, '0')}</span>
+    </div>
+</div>
+
+<style>
+    .hero-pattern {
+        position: relative;
+        width: 100%;
+        aspect-ratio: 4 / 1;
+        border-top: var(--rule-double) double var(--ink);
+        border-bottom: var(--rule-double) double var(--ink);
+        border-left: var(--rule) solid var(--ink);
+        border-right: var(--rule) solid var(--ink);
+        background: var(--paper);
+        color: var(--ink);
+        overflow: hidden;
+    }
+
+    .hero-pattern__field {
+        position: absolute;
+        inset: 0;
+        opacity: 0.28;
+    }
+
+    .hero-pattern__ramp {
+        position: absolute;
+        inset: 0;
+        opacity: 0.18;
+    }
+
+    .hero-pattern[data-variant="0"] .hero-pattern__ramp {
+        -webkit-mask-image: linear-gradient(to right, black, transparent);
+                mask-image: linear-gradient(to right, black, transparent);
+    }
+
+    .hero-pattern[data-variant="1"] .hero-pattern__ramp {
+        -webkit-mask-image: linear-gradient(to bottom right, black, transparent);
+                mask-image: linear-gradient(to bottom right, black, transparent);
+    }
+
+    .hero-pattern[data-variant="2"] .hero-pattern__ramp {
+        -webkit-mask-image: linear-gradient(to top, transparent, black);
+                mask-image: linear-gradient(to top, transparent, black);
+    }
+
+    .hero-pattern__bar {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        display: flex;
+        align-items: center;
+        gap: 1ch;
+        padding: 0.5rem 1rem;
+        border-top: var(--rule) solid var(--ink);
+        background: var(--paper);
+        font-family: var(--font-mono), ui-monospace, monospace;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--ink);
+    }
+
+    .hero-pattern__tag {
+        font-weight: 700;
+    }
+
+    .hero-pattern__label {
+        flex: 1;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .hero-pattern__id {
+        color: var(--ink-dim);
+    }
+</style>

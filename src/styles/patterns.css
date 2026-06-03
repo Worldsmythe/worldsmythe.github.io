@@ -1,0 +1,121 @@
+/*
+  Pattern utilities — 1-bit checkerboards, Bayer dithers, and ramps.
+  All patterns derive color from `currentColor` so they invert with the theme.
+*/
+
+.pattern-check-2,
+.pattern-check-4,
+.pattern-check-6,
+.pattern-check-8 {
+    background-image:
+        linear-gradient(45deg, currentColor 25%, transparent 25%, transparent 75%, currentColor 75%, currentColor),
+        linear-gradient(45deg, currentColor 25%, transparent 25%, transparent 75%, currentColor 75%, currentColor);
+    background-repeat: repeat, repeat;
+}
+
+.pattern-check-2 {
+    background-size: 4px 4px, 4px 4px;
+    background-position: 0 0, 2px 2px;
+}
+
+.pattern-check-4 {
+    background-size: 8px 8px, 8px 8px;
+    background-position: 0 0, 4px 4px;
+}
+
+.pattern-check-6 {
+    background-size: 12px 12px, 12px 12px;
+    background-position: 0 0, 6px 6px;
+}
+
+.pattern-check-8 {
+    background-size: 16px 16px, 16px 16px;
+    background-position: 0 0, 8px 8px;
+}
+
+/* Bayer-style dither tones via SVG masks so currentColor still inherits. */
+.pattern-dither-50,
+.pattern-dither-25,
+.pattern-dither-12 {
+    background-color: currentColor;
+    -webkit-mask-repeat: repeat;
+            mask-repeat: repeat;
+    -webkit-mask-size: 4px 4px;
+            mask-size: 4px 4px;
+}
+
+.pattern-dither-50 {
+    -webkit-mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='4' height='4' viewBox='0 0 4 4' shape-rendering='crispEdges'><rect x='0' y='0' width='2' height='2' fill='%23000'/><rect x='2' y='2' width='2' height='2' fill='%23000'/></svg>");
+            mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='4' height='4' viewBox='0 0 4 4' shape-rendering='crispEdges'><rect x='0' y='0' width='2' height='2' fill='%23000'/><rect x='2' y='2' width='2' height='2' fill='%23000'/></svg>");
+}
+
+.pattern-dither-25 {
+    -webkit-mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='4' height='4' viewBox='0 0 4 4' shape-rendering='crispEdges'><rect x='0' y='0' width='2' height='2' fill='%23000'/></svg>");
+            mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='4' height='4' viewBox='0 0 4 4' shape-rendering='crispEdges'><rect x='0' y='0' width='2' height='2' fill='%23000'/></svg>");
+}
+
+.pattern-dither-12 {
+    -webkit-mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='8' height='8' viewBox='0 0 8 8' shape-rendering='crispEdges'><rect x='0' y='0' width='2' height='2' fill='%23000'/></svg>");
+            mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='8' height='8' viewBox='0 0 8 8' shape-rendering='crispEdges'><rect x='0' y='0' width='2' height='2' fill='%23000'/></svg>");
+    -webkit-mask-size: 8px 8px;
+            mask-size: 8px 8px;
+}
+
+/*
+  Horizontal dither ramp — light to dark, useful for cassette status bars.
+  Implemented as three stacked dither tones placed in a row using background-position.
+*/
+.pattern-ramp-h {
+    background-color: currentColor;
+    -webkit-mask-image:
+        linear-gradient(to right, transparent, black);
+            mask-image:
+        linear-gradient(to right, transparent, black);
+}
+
+.pattern-ramp-v {
+    background-color: currentColor;
+    -webkit-mask-image:
+        linear-gradient(to bottom, transparent, black);
+            mask-image:
+        linear-gradient(to bottom, transparent, black);
+}
+
+/* Corner brackets around a container. Requires container to have position: relative. */
+.frame-corners {
+    position: relative;
+}
+
+.frame-corners::before,
+.frame-corners::after {
+    position: absolute;
+    font-family: var(--font-mono), ui-monospace, monospace;
+    font-size: 1rem;
+    line-height: 1;
+    color: currentColor;
+    pointer-events: none;
+}
+
+.frame-corners::before {
+    content: "┌                                                                                                                                                              ┐";
+    top: -0.5em;
+    left: 0;
+    right: 0;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+.frame-corners::after {
+    content: "└                                                                                                                                                              ┘";
+    bottom: -0.5em;
+    left: 0;
+    right: 0;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+/* Pixel-rendered images — force nearest-neighbor on hover assets, etc. */
+.pixelated {
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+}

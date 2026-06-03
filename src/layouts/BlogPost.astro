@@ -1,0 +1,383 @@
+---
+import { Image } from 'astro:assets';
+import type { CollectionEntry } from 'astro:content';
+import type { MarkdownHeading } from 'astro';
+import BaseHead from '../components/BaseHead.astro';
+import Footer from '../components/Footer.astro';
+import Header from '../components/Header.astro';
+import HeroPattern from '../components/HeroPattern.astro';
+
+type Props = CollectionEntry<'blog'>['data'] & {
+    slug?: string;
+    headings?: MarkdownHeading[];
+    prev?: { id: string; title: string };
+    next?: { id: string; title: string };
+};
+
+const { title, description, pubDate, updatedDate, heroImage, slug, headings = [], prev, next } =
+    Astro.props;
+
+const flatToc = headings
+    .filter((h) => h.depth === 2 || h.depth === 3)
+    .map((h) => ({ ...h, text: h.text.replace(/^#+\s*/, '') }));
+
+type TocSection = { slug: string; text: string; children: { slug: string; text: string }[] };
+const tocSections: TocSection[] = [];
+for (const h of flatToc) {
+    if (h.depth === 2 || tocSections.length === 0) {
+        tocSections.push({ slug: h.slug, text: h.text, children: [] });
+    } else {
+        tocSections[tocSections.length - 1].children.push({ slug: h.slug, text: h.text });
+    }
+}
+
+const stampOf = (d: Date) => d.toISOString().slice(0, 10).replace(/-/g, '.');
+const stamp = stampOf(pubDate);
+const fileSlug = slug ?? title.toLowerCase().replace(/\s+/g, '-');
+---
+
+<!doctype html>
+<html lang="en">
+    <head>
+        <BaseHead title={title} description={description} />
+    </head>
+    <body>
+        <Header command={`cat ${fileSlug}.md`}>
+            <Fragment slot="path"><a href="/">~/den</a>/<a href="/blog">log</a></Fragment>
+        </Header>
+
+        <main class="read">
+            {flatToc.length > 1 && (
+                <aside class="toc" aria-label="On this page">
+                    <div class="toc__h">on this page</div>
+                    <ol class="toc__list">
+                        {tocSections.map((s) => (
+                            <li class="toc__sec">
+                                <a href={`#${s.slug}`}>{s.text}</a>
+                                {s.children.length > 0 && (
+                                    <div class="toc__sub">
+                                        <ol class="toc__sublist">
+                                            {s.children.map((c) => (
+                                                <li><a href={`#${c.slug}`}>{c.text}</a></li>
+                                            ))}
+                                        </ol>
+                                    </div>
+                                )}
+                            </li>
+                        ))}
+                    </ol>
+                    <div class="toc__meta">{stamp}<br />NODE 01</div>
+                </aside>
+            )}
+
+            <article class="art">
+                <figure class="art__hero" transition:name={`hero-${fileSlug}`}>
+                    {heroImage ? (
+                        <Image width={1100} height={460} src={heroImage} alt="" />
+                    ) : (
+                        <HeroPattern seed={fileSlug} label={title} />
+                    )}
+                </figure>
+
+                <header class="art__head">
+                    <div class="log__meta art__meta" transition:name={`meta-${fileSlug}`}>
+                        <span class="tag tag--lime">SIGNAL</span>
+                        <span>{stamp}</span>
+                        {updatedDate && (
+                            <>
+                                <span>·</span>
+                                <span>REV {stampOf(updatedDate)}</span>
+                            </>
+                        )}
+                    </div>
+                    <h1 class="art__title" transition:name={`title-${fileSlug}`}>{title}</h1>
+                    <p class="art__dek" transition:name={`dek-${fileSlug}`}>{description}</p>
+                </header>
+
+                <div class="prose">
+                    <slot />
+                </div>
+            </article>
+        </main>
+
+        {(prev || next) && (
+            <nav class="pager" aria-label="Adjacent entries">
+                {prev ? (
+                    <a href={`/blog/${prev.id}/`}>
+                        <span class="pager__l">← PREV</span>
+                        <span class="pager__t">{prev.title}</span>
+                    </a>
+                ) : (
+                    <span></span>
+                )}
+                {next ? (
+                    <a href={`/blog/${next.id}/`} class="pager__next">
+                        <span class="pager__l">NEXT →</span>
+                        <span class="pager__t">{next.title}</span>
+                    </a>
+                ) : (
+                    <span></span>
+                )}
+            </nav>
+        )}
+
+        <Footer />
+
+        <div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-hidden="true">
+            <span class="lightbox__hint">[ ESC / CLICK TO CLOSE ]</span>
+            <figure class="lightbox__stage"></figure>
+        </div>
+
+        <script>
+            let lbKeyHandler: ((e: KeyboardEvent) => void) | null = null;
+
+            function initLightbox() {
+                const box = document.getElementById('lightbox');
+                const stage = box?.querySelector<HTMLElement>('.lightbox__stage');
+                if (!box || !stage) return;
+
+                const open = (img: HTMLImageElement) => {
+                    const fig = img.closest('figure');
+                    const caption = fig?.querySelector('figcaption')?.textContent?.trim() ?? '';
+                    stage.innerHTML = '';
+                    const big = document.createElement('img');
+                    big.className = 'lightbox__img';
+                    big.src = img.currentSrc || img.src;
+                    big.alt = img.alt || '';
+                    stage.appendChild(big);
+                    if (caption) {
+                        const cap = document.createElement('figcaption');
+                        cap.className = 'lightbox__cap';
+                        cap.textContent = caption;
+                        stage.appendChild(cap);
+                    }
+                    box.classList.add('is-open');
+                    box.setAttribute('aria-hidden', 'false');
+                    document.documentElement.style.overflow = 'hidden';
+                };
+                const close = () => {
+                    box.classList.remove('is-open');
+                    box.setAttribute('aria-hidden', 'true');
+                    document.documentElement.style.overflow = '';
+                };
+
+                document
+                    .querySelectorAll<HTMLImageElement>('.prose img, .art__hero img')
+                    .forEach((img) => img.addEventListener('click', () => open(img)));
+                box.addEventListener('click', close);
+
+                if (lbKeyHandler) document.removeEventListener('keydown', lbKeyHandler);
+                lbKeyHandler = (e) => {
+                    if (e.key === 'Escape') close();
+                };
+                document.addEventListener('keydown', lbKeyHandler);
+            }
+
+            document.addEventListener('astro:page-load', initLightbox);
+        </script>
+
+        <script>
+            let onScroll: (() => void) | null = null;
+
+            function initToc() {
+                if (onScroll) {
+                    window.removeEventListener('scroll', onScroll);
+                    window.removeEventListener('resize', onScroll);
+                    onScroll = null;
+                }
+
+                const toc = document.querySelector('.toc');
+                const sections = Array.from(document.querySelectorAll('.toc__sec'));
+                const links = Array.from(document.querySelectorAll<HTMLAnchorElement>('.toc__list a'));
+                const items = links
+                    .map((a) => ({ a, el: document.getElementById(a.getAttribute('href')!.slice(1)) }))
+                    .filter((o): o is { a: HTMLAnchorElement; el: HTMLElement } => o.el !== null);
+                if (!items.length) return;
+
+                let ticking = false;
+                const update = () => {
+                    ticking = false;
+                    const line = 150;
+                    let current = items[0];
+                    for (const item of items) {
+                        if (item.el.getBoundingClientRect().top <= line) current = item;
+                    }
+                    links.forEach((a) => a.removeAttribute('aria-current'));
+                    current.a.setAttribute('aria-current', 'true');
+                    const activeSection = current.a.closest('.toc__sec');
+                    sections.forEach((sec) => sec.classList.toggle('is-active', sec === activeSection));
+                };
+                onScroll = () => {
+                    if (!ticking) {
+                        ticking = true;
+                        requestAnimationFrame(update);
+                    }
+                };
+                window.addEventListener('scroll', onScroll, { passive: true });
+                window.addEventListener('resize', onScroll);
+                update();
+                // enable collapse transitions only after the initial state is painted
+                requestAnimationFrame(() => toc?.classList.add('is-ready'));
+            }
+
+            document.addEventListener('astro:page-load', initToc);
+        </script>
+    </body>
+</html>
+<style>
+    .read {
+        position: relative;
+        width: 100%;
+        max-width: 100%;
+        margin: 0;
+        padding: 0;
+    }
+    .art {
+        max-width: 760px;
+        margin: 0 auto;
+        padding: clamp(28px, 5vw, 60px) var(--gut);
+    }
+
+    .art__head {
+        margin: 0 0 30px;
+        padding: 0 0 26px;
+        border-bottom: var(--rule) solid var(--line);
+    }
+    .art__meta { margin: 0 0 18px; }
+    .art__title {
+        font-family: var(--font-mono-stack);
+        font-weight: 700;
+        text-transform: uppercase;
+        font-size: clamp(32px, 5.2vw, 56px);
+        line-height: 1;
+        letter-spacing: -0.015em;
+        margin: 0;
+        color: var(--ink);
+        text-shadow: 0 0 22px rgba(152, 224, 74, 0.14);
+    }
+    .art__dek {
+        font-family: var(--font-body-stack);
+        font-style: italic;
+        font-size: clamp(19px, 2.4vw, 23px);
+        color: var(--ink-dim);
+        margin: 22px 0 0;
+    }
+    .art__hero { margin: 0 0 36px; }
+    .art__hero :global(img) {
+        width: 100%;
+        height: auto;
+        display: block;
+        border-top: var(--rule-double) double var(--line);
+        border-bottom: var(--rule-double) double var(--line);
+        border-left: var(--rule) solid var(--line);
+        border-right: var(--rule) solid var(--line);
+    }
+
+    /* floating TOC in the left gutter */
+    .toc { display: none; }
+    .toc__h {
+        font-family: var(--font-mono-stack);
+        font-size: 0.68rem;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        color: var(--lime);
+        margin: 0 0 12px;
+        padding-bottom: 10px;
+        border-bottom: var(--rule) solid var(--line);
+    }
+    .toc__h::before { content: "// "; color: var(--ink-mut); }
+    .toc__list { list-style: none; margin: 0; padding: 0; font-family: var(--font-mono-stack); }
+    .toc__list li { margin: 0; }
+    .toc__list a {
+        display: block;
+        font-size: 0.72rem;
+        line-height: 1.35;
+        color: var(--ink-dim);
+        padding: 7px 0 7px 14px;
+        border-left: 2px solid var(--line-dim);
+        text-decoration: none;
+    }
+    .toc__list a:hover { color: var(--ink); background: transparent; border-left-color: var(--amber); }
+    .toc__list a[aria-current='true'] { color: var(--lime); border-left-color: var(--lime); }
+    .toc__sec.is-active > a { color: var(--ink); }
+
+    /* collapsible H3 group — expands only for the active section */
+    .toc__sub {
+        display: grid;
+        grid-template-rows: 0fr;
+        opacity: 0;
+    }
+    .toc.is-ready .toc__sub {
+        transition:
+            grid-template-rows 220ms var(--ease-out-cubic),
+            opacity 160ms var(--ease-out-cubic);
+    }
+    .toc__sec.is-active > .toc__sub {
+        grid-template-rows: 1fr;
+        opacity: 1;
+    }
+    .toc__sublist { list-style: none; margin: 0; padding: 0; overflow: hidden; min-height: 0; }
+    .toc__sublist a { padding-left: 28px; font-size: 0.68rem; color: var(--ink-mut); }
+    .toc__sublist a[aria-current='true'] { color: var(--lime); }
+
+    @media (prefers-reduced-motion: reduce) {
+        .toc.is-ready .toc__sub { transition: none; }
+    }
+    .toc__meta {
+        font-family: var(--font-mono-stack);
+        margin-top: 16px;
+        padding-top: 12px;
+        border-top: 1px dotted var(--line-dim);
+        font-size: 0.66rem;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--ink-mut);
+    }
+
+    @media (min-width: 1160px) {
+        .read {
+            display: grid;
+            grid-template-columns: 1fr minmax(auto, 760px) 1fr;
+        }
+        .read > .toc {
+            display: block;
+            grid-column: 1;
+            justify-self: end;
+            position: sticky;
+            top: 40px;
+            align-self: start;
+            width: 150px;
+            margin-right: 16px;
+            margin-top: clamp(30px, 5vw, 58px);
+        }
+        .read > .art { grid-column: 2; }
+    }
+
+    /* prev / next */
+    .pager {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        border-top: var(--rule) solid var(--line);
+    }
+    .pager a { padding: 22px var(--gut); color: var(--ink); text-decoration: none; }
+    .pager a:hover { background: var(--bg-3); }
+    .pager > a + a,
+    .pager > a.pager__next { border-left: var(--rule) solid var(--line); text-align: right; }
+    .pager__l {
+        font-family: var(--font-mono-stack);
+        font-size: 0.66rem;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--ink-mut);
+        display: block;
+        margin-bottom: 8px;
+    }
+    .pager__t { font-family: var(--font-mono-stack); font-size: 0.95rem; text-transform: uppercase; }
+    .pager a:hover .pager__t { color: var(--amber); }
+
+    @media (max-width: 600px) {
+        .pager { grid-template-columns: 1fr; }
+        .pager > a + a,
+        .pager > a.pager__next { border-left: 0; border-top: var(--rule) solid var(--line); text-align: left; }
+    }
+</style>

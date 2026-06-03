@@ -1,0 +1,130 @@
+---
+import { SITE_NODE, SITE_TAG } from '../consts';
+import HeaderLink from './HeaderLink.astro';
+
+interface Props {
+    path?: string;
+    command?: string;
+}
+
+const { path, command = 'ls -lat' } = Astro.props;
+const stamp = new Date().toISOString().slice(0, 10).replace(/-/g, '.');
+const hasPathSlot = Astro.slots.has('path');
+---
+
+<header class="chrome">
+    <div class="bar">
+        <span class="bar__seg"><span class="dot"></span> {SITE_TAG}</span>
+        <span class="bar__seg bar__grow">
+            {hasPathSlot && <span class="bar__path"><slot name="path" /></span>}
+            {!hasPathSlot && path && <span class="bar__path">{path}</span>}
+            <span class="bar__prompt">$</span><span class="bar__cmd">{command}</span><span class="cur"></span>
+        </span>
+        <span class="bar__seg bar__right">{SITE_NODE}</span>
+        <span class="bar__seg">{stamp}</span>
+        <span class="bar__seg"><span class="dot dot--amber"></span> SIGNAL&nbsp;OK</span>
+    </div>
+    <nav class="nav">
+        <HeaderLink href="/">Index</HeaderLink>
+        <HeaderLink href="/blog">Log</HeaderLink>
+        <HeaderLink href="/about">About</HeaderLink>
+        <span class="nav__spacer"></span>
+    </nav>
+</header>
+<style>
+    .chrome {
+        position: relative;
+        z-index: 1;
+        border-bottom: var(--rule) solid var(--line);
+    }
+
+    .bar {
+        display: flex;
+        align-items: stretch;
+        border-bottom: var(--rule) solid var(--line);
+        font-family: var(--font-mono-stack);
+        font-size: 0.72rem;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--ink-dim);
+    }
+    .bar__seg {
+        padding: 9px 14px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        white-space: nowrap;
+    }
+    .bar__seg + .bar__seg { border-left: var(--rule) solid var(--line); }
+    .bar__grow { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; gap: 0; letter-spacing: 0; }
+    .bar__path { color: var(--ink); }
+    .bar__prompt { margin: 0 0.8ch; color: var(--ink-mut); }
+    .bar__cmd { white-space: pre; }
+    .bar__right { margin-left: auto; }
+
+    .bar :global(a) { color: var(--ink); text-decoration: none; }
+    .bar :global(a:hover) { background: var(--amber); color: var(--bg); }
+
+    .nav {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        font-family: var(--font-mono-stack);
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+    }
+    .nav__spacer { flex: 1; }
+
+    @media (max-width: 600px) {
+        .bar { flex-wrap: wrap; font-size: 0.68rem; }
+        .bar__right,
+        .bar__right + .bar__seg { display: none; }
+        .bar__grow { border-left: 0; }
+        .nav__spacer { display: none; }
+    }
+</style>
+<script>
+    const prefersReduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const delay = (ms: number) => new Promise((r) => setTimeout(r, ms));
+    let pendingOld: string | null = null;
+    let token = 0;
+
+    async function typeCommand(el: HTMLElement, from: string, to: string, run: number) {
+        const max = Math.min(from.length, to.length);
+        let common = 0;
+        while (common < max && from[common] === to[common]) common++;
+        for (let i = from.length; i > common; i--) {
+            if (run !== token) return;
+            el.textContent = from.slice(0, i - 1);
+            await delay(16);
+        }
+        for (let i = common; i < to.length; i++) {
+            if (run !== token) return;
+            el.textContent = to.slice(0, i + 1);
+            await delay(30);
+        }
+        if (run === token) el.textContent = to;
+    }
+
+    document.addEventListener('astro:before-swap', () => {
+        const el = document.querySelector('.bar__cmd');
+        pendingOld = el ? el.textContent : null;
+    });
+
+    document.addEventListener('astro:after-swap', () => {
+        const el = document.querySelector<HTMLElement>('.bar__cmd');
+        if (!el) {
+            pendingOld = null;
+            return;
+        }
+        const target = el.textContent ?? '';
+        if (prefersReduced || !pendingOld || pendingOld === target) {
+            pendingOld = null;
+            return;
+        }
+        el.textContent = pendingOld;
+        typeCommand(el, pendingOld, target, ++token);
+        pendingOld = null;
+    });
+</script>
