@@ -48,8 +48,9 @@ code tends to go, since it's shared between the other three tabs.
 
 We also have the Help, Inspect, Play, and Save buttons along the top, and the
 Console Log and Script Test on the left side. Help will take you to the
-scripting documentation, inspect does nothing as far as I can see, play will
-take you to the scenario page, and save will save your scripts to the scenario.
+scripting documentation, inspect opens a context viewer (expires after 15
+minutes, only works on your own scenarios), play will take you to the scenario
+page, and save will save your scripts to the scenario.
 
 :::tip[Script Test]
 Quite honestly, the Script Test button isn't very useful for us. It's generally
