@@ -10,6 +10,7 @@ interface FenceMeta {
     ins: Set<number>;
     del: Set<number>;
     focus: Set<number>;
+    collapse: Set<number>;
 }
 
 function parseRanges(spec: string): Set<number> {
@@ -39,6 +40,7 @@ function parseMeta(raw: string | null | undefined): FenceMeta {
         ins: new Set(),
         del: new Set(),
         focus: new Set(),
+        collapse: new Set(),
     };
     if (!raw) return meta;
 
@@ -48,6 +50,7 @@ function parseMeta(raw: string | null | undefined): FenceMeta {
     meta.ins = parseNamed(raw, 'ins');
     meta.del = parseNamed(raw, 'del');
     meta.focus = parseNamed(raw, 'focus');
+    meta.collapse = parseNamed(raw, 'collapse');
 
     // bare {…} (and mark={…}) are highlights; strip named ranges first so their
     // braces aren't mistaken for the bare highlight range.
@@ -81,6 +84,77 @@ function resolveLang(lang: string | null | undefined): BundledLanguage | 'text' 
     return 'text';
 }
 
+function groupRuns(set: Set<number>): Array<[number, number]> {
+    const nums = [...set].sort((a, b) => a - b);
+    const runs: Array<[number, number]> = [];
+    for (const n of nums) {
+        const last = runs[runs.length - 1];
+        if (last && n === last[1] + 1) last[1] = n;
+        else runs.push([n, n]);
+    }
+    return runs;
+}
+
+function foldOpen(count: number): string {
+    const label = `${count} ${count === 1 ? 'line' : 'lines'} hidden`;
+    return (
+        '<span class="code-fold" data-open="false">' +
+        '<button class="code-fold__toggle" type="button" aria-expanded="false">' +
+        '<span class="code-fold__chev" aria-hidden="true">▸</span>' +
+        `<span class="code-fold__label">${label}</span>` +
+        '</button>' +
+        '<span class="code-fold__wrap"><span class="code-fold__lines">'
+    );
+}
+
+const FOLD_CLOSE = '</span></span></span>';
+
+/**
+ * Rewrites the per-line spans Shiki produced: stamps `data-line` plus the
+ * highlight/diff/focus markers, and wraps each contiguous `collapse` range in a
+ * clickable fold that starts closed. Folds use overflow collapse rather than
+ * `display:none` so the line-number counter stays continuous when closed.
+ */
+function processLines(inner: string, meta: FenceMeta): string {
+    const foldStart = new Map<number, number>();
+    const foldEnd = new Set<number>();
+    for (const [start, end] of groupRuns(meta.collapse)) {
+        foldStart.set(start, end - start + 1);
+        foldEnd.add(end);
+    }
+
+    let lineIndex = 0;
+    let open = false;
+    let out = '';
+    for (const part of inner.split(/(?=<span class="line")/)) {
+        if (!part.startsWith('<span class="line"')) {
+            out += part;
+            continue;
+        }
+        lineIndex += 1;
+        const piece = part.replace(/^<span class="line"([^>]*)>/, (_match, attrs: string) => {
+            let marks = '';
+            if (meta.highlights.has(lineIndex)) marks += ' data-highlighted="true"';
+            if (meta.ins.has(lineIndex)) marks += ' data-ins="true"';
+            if (meta.del.has(lineIndex)) marks += ' data-del="true"';
+            if (meta.focus.size > 0 && !meta.focus.has(lineIndex)) marks += ' data-faded="true"';
+            return `<span class="line" data-line="${lineIndex}"${marks}${attrs}>`;
+        });
+        const count = foldStart.get(lineIndex);
+        if (count !== undefined) {
+            out += foldOpen(count);
+            open = true;
+        }
+        out += piece;
+        if (open && foldEnd.has(lineIndex)) {
+            out += FOLD_CLOSE;
+            open = false;
+        }
+    }
+    if (open) out += FOLD_CLOSE;
+    return out;
+}
+
 async function renderShell(node: Code): Promise<string> {
     const meta = parseMeta(node.meta);
     const lang = resolveLang(node.lang);
@@ -103,18 +177,8 @@ async function renderShell(node: Code): Promise<string> {
 
     const hasMarkers =
         meta.highlights.size > 0 || meta.ins.size > 0 || meta.del.size > 0 || meta.focus.size > 0;
-    if (hasMarkers) {
-        let lineIndex = 0;
-        inner = inner.replace(/<span class="line"([^>]*)>/g, (_match, attrs: string) => {
-            lineIndex += 1;
-            let marks = '';
-            if (meta.highlights.has(lineIndex)) marks += ' data-highlighted="true"';
-            if (meta.ins.has(lineIndex)) marks += ' data-ins="true"';
-            if (meta.del.has(lineIndex)) marks += ' data-del="true"';
-            // focus={…}: keep those lines lit, fade everything else
-            if (meta.focus.size > 0 && !meta.focus.has(lineIndex)) marks += ' data-faded="true"';
-            return `<span class="line" data-line="${lineIndex}"${marks}${attrs}>`;
-        });
+    if (hasMarkers || meta.collapse.size > 0) {
+        inner = processLines(inner, meta);
     }
     const focusAttr = meta.focus.size > 0 ? ' data-has-focus="true"' : '';
 
@@ -125,10 +189,11 @@ async function renderShell(node: Code): Promise<string> {
 
     return [
         `<figure class="code-shell" data-lang="${escapeHtml(node.lang ?? 'text')}"${focusAttr}>`,
-        `<header class="code-shell__bar" aria-hidden="true">`,
+        `<header class="code-shell__bar">`,
         `<span class="code-shell__tag">[ ${escapeHtml(langLabel)} ]</span>`,
         titleHtml,
-        `<span class="code-shell__rule"></span>`,
+        `<span class="code-shell__rule" aria-hidden="true"></span>`,
+        `<button class="code-shell__copy" type="button">Copy</button>`,
         `</header>`,
         `<pre class="code-shell__body" tabindex="0"><code class="code-shell__code">${inner}</code></pre>`,
         `<footer class="code-shell__corners" aria-hidden="true"></footer>`,

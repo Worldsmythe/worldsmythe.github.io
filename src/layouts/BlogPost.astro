@@ -3,6 +3,8 @@ import { Image } from 'astro:assets';
 import type { CollectionEntry } from 'astro:content';
 import type { MarkdownHeading } from 'astro';
 import BaseHead from '../components/BaseHead.astro';
+import CodeFold from '../components/CodeFold.astro';
+import CopyCode from '../components/CopyCode.astro';
 import Footer from '../components/Footer.astro';
 import Header from '../components/Header.astro';
 import HeroPattern from '../components/HeroPattern.astro';
@@ -125,6 +127,8 @@ const fileSlug = slug ?? title.toLowerCase().replace(/\s+/g, '-');
         <Footer />
 
         <Lightbox />
+        <CodeFold />
+        <CopyCode />
 
         <script>
             let onScroll: (() => void) | null = null;

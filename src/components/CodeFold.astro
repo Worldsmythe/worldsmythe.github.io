@@ -1,0 +1,25 @@
+---
+// Toggles collapsible regions inside code blocks (collapse={…}). Delegated so a
+// single document listener covers every fold across view-transition navigations.
+---
+
+<script>
+    let bound = false;
+
+    function initCodeFold() {
+        if (bound) return;
+        bound = true;
+        document.addEventListener('click', (e) => {
+            if (!(e.target instanceof Element)) return;
+            const toggle = e.target.closest('.code-fold__toggle');
+            if (!toggle) return;
+            const fold = toggle.closest('.code-fold');
+            if (!fold) return;
+            const open = fold.getAttribute('data-open') === 'true';
+            fold.setAttribute('data-open', String(!open));
+            toggle.setAttribute('aria-expanded', String(!open));
+        });
+    }
+
+    document.addEventListener('astro:page-load', initCodeFold);
+</script>

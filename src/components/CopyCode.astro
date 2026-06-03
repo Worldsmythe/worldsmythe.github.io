@@ -1,0 +1,48 @@
+---
+// Copies a code block to the clipboard: every line including collapsed folds,
+// minus deleted (data-del) lines. Line numbers and diff markers are CSS
+// pseudo-elements, so textContent already yields clean source.
+---
+
+<script>
+    let bound = false;
+    const timers = new WeakMap<Element, number>();
+
+    function initCopyCode() {
+        if (bound) return;
+        bound = true;
+        document.addEventListener('click', async (e) => {
+            if (!(e.target instanceof Element)) return;
+            const btn = e.target.closest('.code-shell__copy');
+            if (!btn) return;
+            const code = btn.closest('.code-shell')?.querySelector('.code-shell__code');
+            if (!code) return;
+
+            const text = Array.from(code.querySelectorAll('.line'))
+                .filter((line) => line.getAttribute('data-del') !== 'true')
+                .map((line) => line.textContent ?? '')
+                .join('\n');
+
+            try {
+                await navigator.clipboard.writeText(text);
+            } catch {
+                return;
+            }
+
+            const prev = timers.get(btn);
+            if (prev) clearTimeout(prev);
+            btn.textContent = 'Copied';
+            btn.setAttribute('data-copied', 'true');
+            timers.set(
+                btn,
+                window.setTimeout(() => {
+                    btn.textContent = 'Copy';
+                    btn.removeAttribute('data-copied');
+                    timers.delete(btn);
+                }, 1500),
+            );
+        });
+    }
+
+    document.addEventListener('astro:page-load', initCopyCode);
+</script>

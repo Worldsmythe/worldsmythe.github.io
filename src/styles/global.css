@@ -382,6 +382,37 @@ textarea { width: 100%; }
 .code-shell__tag { font-weight: 700; color: var(--amber); }
 .code-shell__title { color: var(--ink-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .code-shell__rule { flex: 1; height: 0; border-top: var(--rule-hair) dashed var(--line-dim); }
+.code-shell__copy {
+    flex: none;
+    border: var(--rule-hair) solid var(--line-dim);
+    background: transparent;
+    color: var(--ink-mut);
+    font-family: var(--font-mono-stack);
+    font-size: 0.66rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 0.25em 0.7em;
+    cursor: pointer;
+    -webkit-user-select: none;
+    user-select: none;
+    transition:
+        color 150ms ease,
+        background 150ms ease,
+        border-color 150ms ease;
+}
+.code-shell__copy:hover,
+.code-shell__copy:focus-visible {
+    color: var(--bg);
+    background: var(--amber);
+    border-color: var(--amber);
+    outline: none;
+}
+.code-shell__copy[data-copied='true'],
+.code-shell__copy[data-copied='true']:hover {
+    color: var(--bg);
+    background: var(--lime);
+    border-color: var(--lime);
+}
 
 .code-shell__body {
     margin: 0;
@@ -392,6 +423,8 @@ textarea { width: 100%; }
 }
 .code-shell__code {
     display: block;
+    width: max-content;
+    min-width: 100%;
     font-family: var(--font-mono-stack);
     font-size: 0.85rem;
     line-height: 1.55;
@@ -442,6 +475,84 @@ textarea { width: 100%; }
 .code-shell[data-has-focus] .code-shell__body:hover .line[data-faded='true'] { opacity: 1; }
 @media (prefers-reduced-motion: reduce) {
     .code-shell__body .line[data-faded='true'] { transition: none; }
+}
+
+/* collapsible folds (collapse={…}) — start closed, click the bar to expand */
+.code-fold { display: block; }
+.code-fold__toggle {
+    display: flex;
+    align-items: center;
+    gap: 0.7ch;
+    width: 100%;
+    padding: 0.35em 1.25em 0.35em 0.9em;
+    border: 0;
+    border-block: var(--rule) solid var(--line-dim);
+    background-color: transparent;
+    background-image: repeating-linear-gradient(
+        -45deg,
+        var(--line-dim) 0 5px,
+        transparent 5px 11px
+    );
+    background-clip: padding-box;
+    color: var(--ink);
+    font-family: var(--font-mono-stack);
+    font-size: 0.72rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    text-align: left;
+    cursor: pointer;
+    -webkit-user-select: none;
+    user-select: none;
+    transition:
+        color 150ms ease,
+        padding 200ms var(--ease-out-cubic);
+}
+.code-fold__toggle:hover,
+.code-fold__toggle:focus-visible {
+    color: var(--lime);
+    background-image: repeating-linear-gradient(
+        -45deg,
+        rgb(var(--lime-rgb) / 0.18) 0 5px,
+        transparent 5px 11px
+    );
+    outline: none;
+}
+.code-fold__chev {
+    flex: none;
+    transition: transform 180ms var(--ease-out-cubic);
+}
+.code-fold[data-open='true'] .code-fold__chev { transform: rotate(90deg); }
+
+/* expanded: shrink the bar to a thin clickable seam between the code lines */
+.code-fold[data-open='true'] .code-fold__toggle {
+    padding-top: 0.2em;
+    padding-bottom: 0.2em;
+    border-top-color: transparent;
+    background: transparent;
+}
+.code-fold[data-open='true'] .code-fold__toggle:hover,
+.code-fold[data-open='true'] .code-fold__toggle:focus-visible {
+    background: rgb(var(--lime-rgb) / 0.06);
+    border-bottom-color: var(--lime);
+}
+.code-fold[data-open='true'] .code-fold__chev,
+.code-fold[data-open='true'] .code-fold__label { display: none; }
+
+.code-fold__wrap {
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows 240ms var(--ease-out-cubic);
+}
+.code-fold[data-open='true'] .code-fold__wrap { grid-template-rows: 1fr; }
+.code-fold__lines { overflow: hidden; min-height: 0; }
+/* collapsed hidden lines aren't part of the selectable code */
+.code-fold[data-open='false'] .code-fold__lines {
+    -webkit-user-select: none;
+    user-select: none;
+}
+@media (prefers-reduced-motion: reduce) {
+    .code-fold__wrap,
+    .code-fold__chev { transition: none; }
 }
 
 .code-shell__corners { display: none; }
