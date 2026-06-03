@@ -6,6 +6,7 @@ import BaseHead from '../components/BaseHead.astro';
 import Footer from '../components/Footer.astro';
 import Header from '../components/Header.astro';
 import HeroPattern from '../components/HeroPattern.astro';
+import Lightbox from '../components/Lightbox.astro';
 
 type Props = CollectionEntry<'blog'>['data'] & {
     slug?: string;
@@ -123,58 +124,7 @@ const fileSlug = slug ?? title.toLowerCase().replace(/\s+/g, '-');
 
         <Footer />
 
-        <div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-hidden="true">
-            <span class="lightbox__hint">[ ESC / CLICK TO CLOSE ]</span>
-            <figure class="lightbox__stage"></figure>
-        </div>
-
-        <script>
-            let lbKeyHandler: ((e: KeyboardEvent) => void) | null = null;
-
-            function initLightbox() {
-                const box = document.getElementById('lightbox');
-                const stage = box?.querySelector<HTMLElement>('.lightbox__stage');
-                if (!box || !stage) return;
-
-                const open = (img: HTMLImageElement) => {
-                    const fig = img.closest('figure');
-                    const caption = fig?.querySelector('figcaption')?.textContent?.trim() ?? '';
-                    stage.innerHTML = '';
-                    const big = document.createElement('img');
-                    big.className = 'lightbox__img';
-                    big.src = img.currentSrc || img.src;
-                    big.alt = img.alt || '';
-                    stage.appendChild(big);
-                    if (caption) {
-                        const cap = document.createElement('figcaption');
-                        cap.className = 'lightbox__cap';
-                        cap.textContent = caption;
-                        stage.appendChild(cap);
-                    }
-                    box.classList.add('is-open');
-                    box.setAttribute('aria-hidden', 'false');
-                    document.documentElement.style.overflow = 'hidden';
-                };
-                const close = () => {
-                    box.classList.remove('is-open');
-                    box.setAttribute('aria-hidden', 'true');
-                    document.documentElement.style.overflow = '';
-                };
-
-                document
-                    .querySelectorAll<HTMLImageElement>('.prose img, .art__hero img')
-                    .forEach((img) => img.addEventListener('click', () => open(img)));
-                box.addEventListener('click', close);
-
-                if (lbKeyHandler) document.removeEventListener('keydown', lbKeyHandler);
-                lbKeyHandler = (e) => {
-                    if (e.key === 'Escape') close();
-                };
-                document.addEventListener('keydown', lbKeyHandler);
-            }
-
-            document.addEventListener('astro:page-load', initLightbox);
-        </script>
+        <Lightbox />
 
         <script>
             let onScroll: (() => void) | null = null;

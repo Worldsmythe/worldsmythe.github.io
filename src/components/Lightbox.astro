@@ -1,0 +1,167 @@
+---
+// Click-to-zoom image lightbox. Wires up every image inside `.prose` and
+// `.art__hero`: first click opens at fit-to-screen, a second click zooms to
+// native resolution with drag-to-pan, backdrop/Escape closes.
+---
+
+<div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-hidden="true">
+    <span class="lightbox__hint">[ ESC / CLICK TO CLOSE ]</span>
+    <figure class="lightbox__stage"></figure>
+</div>
+
+<script>
+    let lbKeyHandler: ((e: KeyboardEvent) => void) | null = null;
+    let lbResizeHandler: (() => void) | null = null;
+
+    function initLightbox() {
+        const box = document.getElementById('lightbox');
+        const stage = box?.querySelector<HTMLElement>('.lightbox__stage');
+        if (!box || !stage) return;
+
+        const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+        const PAD = 40;
+
+        let bigImg: HTMLImageElement | null = null;
+        let zoomed = false;
+        let dragging = false;
+        let moved = false;
+        let zoom = 1;
+        let panX = 0;
+        let panY = 0;
+        let fitW = 0;
+        let fitH = 0;
+        let startX = 0;
+        let startY = 0;
+        let startPanX = 0;
+        let startPanY = 0;
+
+        const clampPan = () => {
+            const maxX = Math.max(0, (fitW * zoom - (innerWidth - PAD * 2)) / 2);
+            const maxY = Math.max(0, (fitH * zoom - (innerHeight - PAD * 2)) / 2);
+            panX = Math.min(maxX, Math.max(-maxX, panX));
+            panY = Math.min(maxY, Math.max(-maxY, panY));
+        };
+        const apply = (animate: boolean) => {
+            if (!bigImg) return;
+            bigImg.style.transition = animate && !reduce ? 'transform 240ms var(--ease-out-cubic)' : 'none';
+            clampPan();
+            bigImg.style.transform = zoomed ? `translate(${panX}px, ${panY}px) scale(${zoom})` : 'scale(1)';
+        };
+        const toggleZoom = () => {
+            if (!bigImg) return;
+            if (!zoomed) {
+                const r = bigImg.getBoundingClientRect();
+                fitW = r.width;
+                fitH = r.height;
+                zoom = Math.min(3.5, Math.max(1.6, bigImg.naturalWidth / fitW || 2));
+                panX = 0;
+                panY = 0;
+                zoomed = true;
+                box.classList.add('is-zoomed');
+            } else {
+                zoomed = false;
+                zoom = 1;
+                panX = 0;
+                panY = 0;
+                box.classList.remove('is-zoomed');
+            }
+            apply(true);
+        };
+        const resetZoom = () => {
+            zoomed = false;
+            zoom = 1;
+            panX = 0;
+            panY = 0;
+            box.classList.remove('is-zoomed', 'is-grabbing');
+            if (bigImg) {
+                bigImg.style.transition = 'none';
+                bigImg.style.transform = '';
+            }
+        };
+
+        const open = (src: string, alt: string, caption: string) => {
+            stage.innerHTML = '';
+            bigImg = document.createElement('img');
+            bigImg.className = 'lightbox__img';
+            bigImg.src = src;
+            bigImg.alt = alt;
+            stage.appendChild(bigImg);
+            if (caption) {
+                const cap = document.createElement('figcaption');
+                cap.className = 'lightbox__cap';
+                cap.textContent = caption;
+                stage.appendChild(cap);
+            }
+            resetZoom();
+            box.classList.add('is-open');
+            box.setAttribute('aria-hidden', 'false');
+            document.documentElement.style.overflow = 'hidden';
+
+            bigImg.addEventListener('click', (e) => {
+                e.stopPropagation();
+                if (moved) {
+                    moved = false;
+                    return;
+                }
+                toggleZoom();
+            });
+            bigImg.addEventListener('pointerdown', (e) => {
+                if (!zoomed || !bigImg) return;
+                dragging = true;
+                moved = false;
+                startX = e.clientX;
+                startY = e.clientY;
+                startPanX = panX;
+                startPanY = panY;
+                box.classList.add('is-grabbing');
+                bigImg.setPointerCapture?.(e.pointerId);
+                e.preventDefault();
+            });
+            bigImg.addEventListener('pointermove', (e) => {
+                if (!dragging) return;
+                const dx = e.clientX - startX;
+                const dy = e.clientY - startY;
+                if (Math.abs(dx) > 3 || Math.abs(dy) > 3) moved = true;
+                panX = startPanX + dx;
+                panY = startPanY + dy;
+                apply(false);
+            });
+            const endDrag = (e: PointerEvent) => {
+                if (!dragging) return;
+                dragging = false;
+                box.classList.remove('is-grabbing');
+                bigImg?.releasePointerCapture?.(e.pointerId);
+            };
+            bigImg.addEventListener('pointerup', endDrag);
+            bigImg.addEventListener('pointercancel', endDrag);
+        };
+        const close = () => {
+            box.classList.remove('is-open');
+            box.setAttribute('aria-hidden', 'true');
+            document.documentElement.style.overflow = '';
+            resetZoom();
+        };
+
+        document.querySelectorAll<HTMLImageElement>('.prose img, .art__hero img').forEach((img) => {
+            img.addEventListener('click', () => {
+                const caption = img.closest('figure')?.querySelector('figcaption')?.textContent?.trim() ?? '';
+                open(img.currentSrc || img.src, img.alt || '', caption);
+            });
+        });
+        box.addEventListener('click', close);
+
+        if (lbKeyHandler) document.removeEventListener('keydown', lbKeyHandler);
+        lbKeyHandler = (e) => {
+            if (e.key === 'Escape') close();
+        };
+        document.addEventListener('keydown', lbKeyHandler);
+
+        if (lbResizeHandler) window.removeEventListener('resize', lbResizeHandler);
+        lbResizeHandler = () => {
+            if (zoomed) apply(false);
+        };
+        window.addEventListener('resize', lbResizeHandler);
+    }
+
+    document.addEventListener('astro:page-load', initLightbox);
+</script>
