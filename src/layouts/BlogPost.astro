@@ -246,29 +246,32 @@ const fileSlug = slug ?? title.toLowerCase().replace(/\s+/g, '-');
         padding: 7px 0 7px 14px;
         border-left: 2px solid var(--line-dim);
         text-decoration: none;
+        transition:
+            color 220ms var(--ease-out-cubic),
+            border-left-color 220ms var(--ease-out-cubic);
     }
     .toc__list a:hover { color: var(--ink); background: transparent; border-left-color: var(--amber); }
     .toc__list a[aria-current='true'] { color: var(--lime); border-left-color: var(--lime); }
     .toc__sec.is-active > a { color: var(--ink); }
 
-    /* collapsible H3 group — expands only for the active section */
+    /* collapsible H3 group — expands only for the active section.
+       The rail is an inset shadow on this grid container so it spans the full
+       animating track height; the sublist itself doesn't stretch to fill the
+       track mid-transition, which would leave a borderless gap in the rail. */
     .toc__sub {
         display: grid;
         grid-template-rows: 0fr;
-        opacity: 0;
+        box-shadow: inset 2px 0 0 var(--line-dim);
     }
     .toc.is-ready .toc__sub {
-        transition:
-            grid-template-rows 220ms var(--ease-out-cubic),
-            opacity 160ms var(--ease-out-cubic);
+        transition: grid-template-rows 240ms var(--ease-out-cubic);
     }
     .toc__sec.is-active > .toc__sub {
         grid-template-rows: 1fr;
-        opacity: 1;
     }
     .toc__sublist { list-style: none; margin: 0; padding: 0; overflow: hidden; min-height: 0; }
-    .toc__sublist a { padding-left: 28px; font-size: 0.68rem; color: var(--ink-mut); }
-    .toc__sublist a[aria-current='true'] { color: var(--lime); }
+    .toc__sublist a { padding-left: 28px; font-size: 0.68rem; color: var(--ink-mut); border-left-color: transparent; }
+    .toc__sublist a[aria-current='true'] { color: var(--lime); border-left-color: var(--lime); }
 
     @media (prefers-reduced-motion: reduce) {
         .toc.is-ready .toc__sub { transition: none; }
