@@ -593,6 +593,167 @@ textarea { width: 100%; }
 .admonition--danger .admonition__bar { background: var(--signal); }
 
 /* ============================================================
+   STORY CARD (remark-storycard) — themed mock of the AID editor
+   ============================================================ */
+.storycard {
+    max-width: 75%;
+    margin: 2.2em auto;
+    border: var(--rule) solid var(--line);
+    background: var(--bg-2);
+    font-family: var(--font-mono-stack);
+    font-size: 0.8rem;
+}
+@media (max-width: 640px) {
+    .storycard { max-width: 100%; }
+}
+.sc__bar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 11px 13px;
+    background: var(--bg-3);
+    border-bottom: var(--rule) solid var(--line);
+}
+.sc__menu {
+    flex: none;
+    width: 30px;
+    height: 30px;
+    display: grid;
+    place-items: center;
+    border: var(--rule-hair) solid var(--line-dim);
+    color: var(--ink-dim);
+    font-size: 1em;
+}
+.sc__title {
+    flex: 1;
+    min-width: 0;
+    text-align: center;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--ink);
+    font-size: 0.9em;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.sc__finish {
+    flex: none;
+    padding: 8px 16px;
+    background: var(--amber);
+    color: var(--bg);
+    font-weight: 700;
+    font-size: 0.7em;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+}
+.sc__tabs {
+    display: flex;
+    gap: 8px;
+    padding: 12px 13px;
+    border-bottom: var(--rule-hair) solid var(--line-dim);
+}
+.sc__tab {
+    padding: 7px 15px;
+    font-size: 0.7em;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-mut);
+    border: var(--rule-hair) solid var(--line-dim);
+}
+.sc__tab.is-on {
+    background: var(--lime);
+    border-color: var(--lime);
+    color: var(--bg);
+}
+.sc__field {
+    padding: 14px 13px 0;
+}
+.sc__field:last-child {
+    padding-bottom: 16px;
+}
+.sc__label {
+    display: block;
+    margin: 0 0 7px;
+    font-size: 0.62em;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--ink-mut);
+}
+.sc__select,
+.sc__input,
+.sc__area {
+    border: var(--rule-hair) solid var(--line-dim);
+    background: var(--bg);
+    color: var(--ink);
+}
+.sc__select,
+.sc__input {
+    padding: 11px 13px;
+    font-size: 0.85em;
+}
+.sc__select {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+.sc__chev {
+    color: var(--ink-mut);
+}
+.sc__hint {
+    margin: 8px 0 0;
+    font-size: 0.72em;
+    line-height: 1.45;
+    color: var(--ink-dim);
+}
+.sc__area {
+    padding: 12px 13px;
+    line-height: 1.6;
+}
+.sc__area--entry {
+    min-height: 84px;
+    font-size: 0.84em;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+.sc__area > :first-child {
+    margin-top: 0;
+}
+.sc__area > :last-child {
+    margin-bottom: 0;
+}
+.sc__pre {
+    margin: 0;
+    font-family: var(--font-mono-stack);
+    font-size: 0.8em;
+    line-height: 1.55;
+    color: var(--ink);
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+.sc__placeholder {
+    margin: 0;
+    color: var(--ink-mut);
+    font-style: italic;
+}
+.sc__foot {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-top: 9px;
+    font-size: 0.68em;
+    letter-spacing: 0.04em;
+}
+.sc__count {
+    color: var(--ink-mut);
+}
+.sc__gen {
+    color: var(--amber);
+}
+
+/* ============================================================
    PROSE (markdown body)
    ============================================================ */
 .prose { color: var(--ink); font-size: 1.06rem; line-height: 1.72; }

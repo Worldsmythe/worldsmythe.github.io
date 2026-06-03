@@ -9,6 +9,7 @@ import remarkDirective from 'remark-directive';
 import { remarkAdmonitions } from './src/plugins/remark-admonitions.ts';
 import { remarkCodeShell } from './src/plugins/remark-code-shell.ts';
 import { remarkQuoteAttribution } from './src/plugins/remark-quote-attribution.ts';
+import { remarkStorycard } from './src/plugins/remark-storycard.ts';
 import { rehypeAnchorHeadings } from './src/plugins/rehype-anchor-headings.ts';
 import { rehypeFigure } from './src/plugins/rehype-figure.ts';
 
@@ -19,7 +20,13 @@ export default defineConfig({
     markdown: {
         syntaxHighlight: false,
         processor: unified({
-            remarkPlugins: [remarkDirective, remarkAdmonitions, remarkCodeShell, remarkQuoteAttribution],
+            remarkPlugins: [
+                remarkDirective,
+                remarkAdmonitions,
+                remarkStorycard,
+                remarkCodeShell,
+                remarkQuoteAttribution,
+            ],
             rehypePlugins: [rehypeAnchorHeadings, rehypeFigure],
         }),
     },
