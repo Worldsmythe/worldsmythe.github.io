@@ -431,6 +431,8 @@ textarea { width: 100%; }
 .code-shell__body .line[data-del='true'] {
     background: rgb(var(--signal-rgb) / 0.1);
     box-shadow: inset 3px 0 0 var(--signal);
+    -webkit-user-select: none;
+            user-select: none;
 }
 .code-shell__body .line[data-ins='true']::before { content: "+"; color: var(--lime); }
 .code-shell__body .line[data-del='true']::before { content: "-"; color: var(--signal); }
