@@ -29,6 +29,6 @@ const { prev, next, ...post } = Astro.props;
 const { Content, headings } = await render(post as CollectionEntry<'blog'>);
 ---
 
-<BlogPost {...post.data} slug={post.id} headings={headings} prev={prev} next={next}>
+<BlogPost {...post.data} slug={post.id} ogImage={`/og/${post.id}.png`} headings={headings} prev={prev} next={next}>
 	<Content />
 </BlogPost>

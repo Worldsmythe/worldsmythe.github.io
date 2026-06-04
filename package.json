@@ -19,6 +19,7 @@
     "astro": "^6.4.3",
     "hastscript": "^9.0.1",
     "remark-directive": "^4.0.0",
+    "satori": "^0.26.0",
     "sharp": "^0.34.3",
     "shiki": "^4.2.0",
     "unist-util-visit": "^5.1.0"

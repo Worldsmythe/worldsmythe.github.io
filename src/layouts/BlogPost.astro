@@ -12,12 +12,13 @@ import Lightbox from '../components/Lightbox.astro';
 
 type Props = CollectionEntry<'blog'>['data'] & {
     slug?: string;
+    ogImage?: string;
     headings?: MarkdownHeading[];
     prev?: { id: string; title: string };
     next?: { id: string; title: string };
 };
 
-const { title, description, pubDate, updatedDate, heroImage, slug, headings = [], prev, next } =
+const { title, description, pubDate, updatedDate, heroImage, slug, ogImage, headings = [], prev, next } =
     Astro.props;
 
 const flatToc = headings
@@ -42,7 +43,7 @@ const fileSlug = slug ?? title.toLowerCase().replace(/\s+/g, '-');
 <!doctype html>
 <html lang="en">
     <head>
-        <BaseHead title={title} description={description} />
+        <BaseHead title={title} description={description} ogImage={ogImage} />
     </head>
     <body>
         <Header command={`cat ${fileSlug}.md`}>
