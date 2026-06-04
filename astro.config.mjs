@@ -10,6 +10,7 @@ import { remarkAdmonitions } from './src/plugins/remark-admonitions.ts';
 import { remarkCodeShell } from './src/plugins/remark-code-shell.ts';
 import { remarkQuoteAttribution } from './src/plugins/remark-quote-attribution.ts';
 import { remarkStorycard } from './src/plugins/remark-storycard.ts';
+import { remarkTrace } from './src/plugins/remark-trace.ts';
 import { rehypeAnchorHeadings } from './src/plugins/rehype-anchor-headings.ts';
 import { rehypeFigure } from './src/plugins/rehype-figure.ts';
 
@@ -24,6 +25,7 @@ export default defineConfig({
                 remarkDirective,
                 remarkAdmonitions,
                 remarkStorycard,
+                remarkTrace,
                 remarkCodeShell,
                 remarkQuoteAttribution,
             ],

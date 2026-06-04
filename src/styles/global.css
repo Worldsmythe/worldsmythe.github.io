@@ -558,6 +558,75 @@ textarea { width: 100%; }
 .code-shell__corners { display: none; }
 
 /* ============================================================
+   TRACE (remark-trace) — two-pane state + execution frame
+   ============================================================ */
+.trace {
+    margin: 1.8em 0;
+    border: var(--rule) solid var(--line);
+    background: var(--code-bg);
+    font-family: var(--font-mono-stack);
+    overflow: hidden;
+}
+.trace__bar {
+    display: flex;
+    align-items: center;
+    gap: 1ch;
+    padding: 0.45em 0.75em;
+    border-bottom: var(--rule) solid var(--line);
+    background: var(--bg);
+    color: var(--ink-dim);
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+}
+.trace__title { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+.trace__pane {
+    margin: 0;
+    padding: 0.8em 0;
+    background: transparent;
+    overflow-x: auto;
+}
+.trace__pane code {
+    display: block;
+    width: max-content;
+    min-width: 100%;
+    font-family: var(--font-mono-stack);
+    font-size: 0.85rem;
+    line-height: 1.55;
+    background: transparent;
+    color: var(--ink);
+    border: 0;
+    padding: 0;
+    white-space: normal;
+}
+.trace__pane .line {
+    display: block;
+    min-height: 1.55em;
+    padding: 0 1.25em 0 2.25em;
+    position: relative;
+    white-space: pre;
+}
+/* state pane sits above the source, raised and divided */
+.trace__state {
+    background: var(--bg-2);
+    border-bottom: var(--rule) solid var(--line);
+}
+/* active (executing) line — amber bar + ▸ gutter, like a code highlight */
+.trace__src .line[data-active='true'] {
+    background: rgb(var(--amber-rgb) / 0.1);
+    box-shadow: inset 3px 0 0 var(--amber);
+}
+.trace__src .line[data-active='true']::before {
+    content: "▸";
+    position: absolute;
+    left: 0.7em;
+    top: 0;
+    color: var(--amber);
+    pointer-events: none;
+}
+
+/* ============================================================
    ADMONITIONS (remark-admonitions) — solid filled headers
    ============================================================ */
 .admonition {
