@@ -446,9 +446,9 @@ You try to go to the store. [🎲 Dice Roll: Partial Success!]
 ```
 
 This is just touching the surface of what you can do with scripting. In my
-next post, I'd like to cover using story cards to configure your script's
-behavior by adding modifier words to this script. If this was useful to you
-please let me know! I'm `worldsmythe_` on the 
-[AI Dungeon Discord](https://discord.com/invite/HB2YBZYjyf).
+[next post](/blog/script-configuration-with-story-cards), I'd like to cover
+using story cards to configure your script's behavior by adding modifier words
+to this script. If this was useful to you please let me know! I'm `worldsmythe_`
+on the [AI Dungeon Discord](https://discord.com/invite/HB2YBZYjyf).
 
 [aidts]: https://github.com/Worldsmythe/FoxTweaks/blob/54cf86b3f34406a7f4c4293b4dc0267ebdf3d443/src/aidungeon.d.ts
