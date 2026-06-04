@@ -38,7 +38,7 @@ function stampOf(date: Date): string {
                     <div class="shead">latest transmission <span class="n">ENTRY {String(posts.length).padStart(3, '0')}</span></div>
                     <a class="feat__media" href={`/blog/${featured.id}/`} transition:name={`hero-${featured.id}`}>
                         {featured.data.heroImage ? (
-                            <Image width={1100} height={460} src={featured.data.heroImage} alt="" />
+                            <Image width={1100} height={460} src={featured.data.heroImage} alt="" loading="eager" fetchpriority="high" />
                         ) : (
                             <HeroPattern seed={featured.id} label={featured.data.title} />
                         )}

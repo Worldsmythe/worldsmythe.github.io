@@ -1,17 +1,6 @@
 {
   "name": "",
-  "type": "module",
   "version": "0.0.1",
-  "private": true,
-  "engines": {
-    "node": ">=22.12.0"
-  },
-  "scripts": {
-    "dev": "astro dev",
-    "build": "astro build",
-    "preview": "astro preview",
-    "astro": "astro"
-  },
   "dependencies": {
     "@astrojs/mdx": "^6.0.1",
     "@astrojs/rss": "^4.0.18",
@@ -23,5 +12,16 @@
     "sharp": "^0.34.3",
     "shiki": "^4.2.0",
     "unist-util-visit": "^5.1.0"
-  }
+  },
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "private": true,
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro"
+  },
+  "type": "module"
 }

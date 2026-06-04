@@ -19,6 +19,12 @@ function soleImage(node: Element): Element | null {
 export const rehypeFigure: Plugin<[], Root> = () => {
     return (tree) => {
         visit(tree, 'element', (node) => {
+            // every markdown image is below-the-fold content (the hero is a
+            // separate layout <Image>), so lazy-load and async-decode them all
+            if (node.tagName === 'img') {
+                node.properties = { loading: 'lazy', decoding: 'async', ...(node.properties ?? {}) };
+                return;
+            }
             if (node.tagName !== 'p') return;
             const img = soleImage(node);
             if (!img) return;

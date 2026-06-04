@@ -18,6 +18,7 @@ import { rehypeFigure } from './src/plugins/rehype-figure.ts';
 export default defineConfig({
     site: 'https://worldsmythe.github.io',
     integrations: [mdx(), sitemap()],
+    build: { inlineStylesheets: 'always' },
     markdown: {
         syntaxHighlight: false,
         processor: unified({

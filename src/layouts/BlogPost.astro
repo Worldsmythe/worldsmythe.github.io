@@ -77,7 +77,7 @@ const fileSlug = slug ?? title.toLowerCase().replace(/\s+/g, '-');
             <article class="art">
                 <figure class="art__hero" transition:name={`hero-${fileSlug}`}>
                     {heroImage ? (
-                        <Image width={1100} height={460} src={heroImage} alt="" />
+                        <Image width={1100} height={460} src={heroImage} alt="" loading="eager" fetchpriority="high" />
                     ) : (
                         <HeroPattern seed={fileSlug} label={title} />
                     )}
