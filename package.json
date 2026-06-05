@@ -1,7 +1,11 @@
 {
-  "name": "",
+  "name": "worldsmythe.github.io",
   "version": "0.0.1",
+  "workspaces": [
+    "packages/*"
+  ],
   "dependencies": {
+    "@worldsmythe/code-shell": "*",
     "@astrojs/mdx": "^6.0.1",
     "@astrojs/rss": "^4.0.18",
     "@astrojs/sitemap": "^3.7.3",

@@ -3,7 +3,7 @@ import type { ContainerDirective } from 'mdast-util-directive';
 import type { Plugin } from 'unified';
 import { visit } from 'unist-util-visit';
 import { codeToHtml, bundledLanguages, type BundledLanguage } from 'shiki';
-import { cassetteShiki } from '../themes/cassette-shiki';
+import { cassetteShiki } from '@worldsmythe/code-shell';
 
 declare module 'mdast' {
     interface Data {

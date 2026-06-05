@@ -5,9 +5,9 @@ import { unified } from '@astrojs/markdown-remark';
 import sitemap from '@astrojs/sitemap';
 import { defineConfig, fontProviders } from 'astro/config';
 import remarkDirective from 'remark-directive';
+import { remarkCodeShell } from '@worldsmythe/code-shell';
 
 import { remarkAdmonitions } from './src/plugins/remark-admonitions.ts';
-import { remarkCodeShell } from './src/plugins/remark-code-shell.ts';
 import { remarkQuoteAttribution } from './src/plugins/remark-quote-attribution.ts';
 import { remarkStorycard } from './src/plugins/remark-storycard.ts';
 import { remarkTrace } from './src/plugins/remark-trace.ts';

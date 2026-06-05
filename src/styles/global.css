@@ -375,11 +375,11 @@ textarea { width: 100%; }
     content: "";
     width: 9px;
     height: 9px;
-    background: var(--amber);
-    box-shadow: 0 0 8px var(--amber);
+    background: var(--lang-color, var(--amber));
+    box-shadow: 0 0 8px var(--lang-color, var(--amber));
     flex: none;
 }
-.code-shell__tag { font-weight: 700; color: var(--amber); }
+.code-shell__tag { font-weight: 700; color: var(--lang-color, var(--amber)); }
 .code-shell__title { color: var(--ink-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .code-shell__rule { flex: 1; height: 0; border-top: var(--rule-hair) dashed var(--line-dim); }
 .code-shell__copy {
@@ -490,7 +490,7 @@ textarea { width: 100%; }
     background-color: transparent;
     background-image: repeating-linear-gradient(
         -45deg,
-        var(--line-dim) 0 5px,
+        rgba(205, 198, 164, 0.18) 0 5px,
         transparent 5px 11px
     );
     background-clip: padding-box;

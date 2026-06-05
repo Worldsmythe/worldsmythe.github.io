@@ -1,0 +1,31 @@
+{
+  "name": "@worldsmythe/code-shell",
+  "version": "0.0.1",
+  "type": "module",
+  "private": true,
+  "exports": {
+    ".": "./index.ts"
+  },
+  "types": "./index.ts",
+  "scripts": {
+    "update-languages": "node scripts/update-languages.mjs"
+  },
+  "dependencies": {
+    "chokidar": "^4.0.0",
+    "diff": "^7.0.0",
+    "shiki": "^4.2.0",
+    "tree-sitter-wasms": "^0.1.13",
+    "unist-util-visit": "^5.1.0",
+    "web-tree-sitter": "0.20.8"
+  },
+  "peerDependencies": {
+    "astro": "^6.4.3"
+  },
+  "devDependencies": {
+    "@types/diff": "^7.0.0",
+    "@types/mdast": "^4.0.4",
+    "astro": "^6.4.3",
+    "unified": "^11.0.5",
+    "yaml": "^2.9.0"
+  }
+}
