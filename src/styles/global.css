@@ -555,6 +555,78 @@ textarea { width: 100%; }
     .code-fold__chev { transition: none; }
 }
 
+/* whole-block fold (collapsed) — a toggle row beneath the header reveals the
+   body, then shrinks to a thin re-collapse seam once open. Mirrors the
+   line-range fold (collapse={…}) styling above. */
+.code-shell__expand {
+    display: flex;
+    align-items: center;
+    gap: 0.7ch;
+    width: 100%;
+    padding: 0.6em 1.25em 0.6em 0.9em;
+    border: 0;
+    background-color: transparent;
+    background-image: repeating-linear-gradient(
+        -45deg,
+        rgba(205, 198, 164, 0.18) 0 5px,
+        transparent 5px 11px
+    );
+    background-clip: padding-box;
+    color: var(--ink);
+    font-family: var(--font-mono-stack);
+    font-size: 0.72rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    text-align: left;
+    cursor: pointer;
+    -webkit-user-select: none;
+    user-select: none;
+    transition:
+        color 150ms ease,
+        padding 200ms var(--ease-out-cubic);
+}
+.code-shell__expand:hover,
+.code-shell__expand:focus-visible {
+    color: var(--lime);
+    background-image: repeating-linear-gradient(
+        -45deg,
+        rgb(var(--lime-rgb) / 0.18) 0 5px,
+        transparent 5px 11px
+    );
+    outline: none;
+}
+.code-shell__chev {
+    flex: none;
+    transition: transform 180ms var(--ease-out-cubic);
+}
+.code-shell[data-open='true'] .code-shell__chev { transform: rotate(90deg); }
+
+/* expanded: shrink the row to a thin clickable seam under the body */
+.code-shell[data-open='true'] .code-shell__expand {
+    padding-top: 0.2em;
+    padding-bottom: 0.2em;
+    background: transparent;
+    border-top: var(--rule) solid var(--line-dim);
+}
+.code-shell[data-open='true'] .code-shell__expand:hover,
+.code-shell[data-open='true'] .code-shell__expand:focus-visible {
+    background: rgb(var(--lime-rgb) / 0.06);
+}
+.code-shell[data-open='true'] .code-shell__chev,
+.code-shell[data-open='true'] .code-shell__expand-label { display: none; }
+
+.code-shell__fold {
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows 240ms var(--ease-out-cubic);
+}
+.code-shell[data-open='true'] .code-shell__fold { grid-template-rows: 1fr; }
+.code-shell__foldinner { overflow: hidden; min-height: 0; }
+@media (prefers-reduced-motion: reduce) {
+    .code-shell__fold,
+    .code-shell__chev { transition: none; }
+}
+
 .code-shell__corners { display: none; }
 
 /* ============================================================

@@ -22,6 +22,7 @@ interface FenceMeta {
     hasIns: boolean;
     hasDel: boolean;
     hasCollapse: boolean;
+    collapsed: boolean;
 }
 
 function parseRanges(spec: string): Set<number> {
@@ -64,6 +65,7 @@ function parseMeta(raw: string | null | undefined): FenceMeta {
         hasIns: false,
         hasDel: false,
         hasCollapse: false,
+        collapsed: false,
     };
     if (!raw) return meta;
 
@@ -75,6 +77,10 @@ function parseMeta(raw: string | null | undefined): FenceMeta {
     meta.hasIns = hasNamed(raw, 'ins');
     meta.hasDel = hasNamed(raw, 'del');
     meta.hasCollapse = hasNamed(raw, 'collapse');
+
+    // `collapsed` (no value) folds the whole block; `collapse={…}` (with value)
+    // folds line ranges. The trailing word boundary keeps them distinct.
+    meta.collapsed = /\bcollapsed\b/.test(raw);
 
     meta.ins = parseNamed(raw, 'ins');
     meta.del = parseNamed(raw, 'del');
@@ -335,15 +341,26 @@ async function renderShell(node: Code, baseDir: string, root: string): Promise<s
         ? `<span class="code-shell__title">${escapeHtml(meta.title)}</span>`
         : '';
 
+    const lineCount = (inner.match(/<span class="line"/g) ?? []).length;
+    const collapseAttr = meta.collapsed ? ' data-collapsible="true" data-open="false"' : '';
+    const body = `<pre class="code-shell__body" tabindex="0"><code class="code-shell__code">${inner}</code></pre>`;
+    const toggleHtml = meta.collapsed
+        ? `<div class="code-shell__fold"><div class="code-shell__foldinner">${body}</div></div>` +
+          '<button class="code-shell__expand" type="button" aria-expanded="false">' +
+          '<span class="code-shell__chev" aria-hidden="true">▸</span>' +
+          `<span class="code-shell__expand-label">${lineCount} ${lineCount === 1 ? 'line' : 'lines'} hidden</span>` +
+          '</button>'
+        : body;
+
     return [
-        `<figure class="code-shell" data-lang="${escapeHtml(node.lang ?? 'text')}" style="--lang-color:${language.color}"${focusAttr}>`,
+        `<figure class="code-shell" data-lang="${escapeHtml(node.lang ?? 'text')}" style="--lang-color:${language.color}"${focusAttr}${collapseAttr}>`,
         `<header class="code-shell__bar">`,
         `<span class="code-shell__tag">[ ${escapeHtml(language.name)} ]</span>`,
         titleHtml,
         `<span class="code-shell__rule" aria-hidden="true"></span>`,
         `<button class="code-shell__copy" type="button">Copy</button>`,
         `</header>`,
-        `<pre class="code-shell__body" tabindex="0"><code class="code-shell__code">${inner}</code></pre>`,
+        toggleHtml,
         `<footer class="code-shell__corners" aria-hidden="true"></footer>`,
         `</figure>`,
     ].join('');

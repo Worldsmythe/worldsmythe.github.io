@@ -1,23 +1,34 @@
 ---
-// Toggles collapsible regions inside code blocks (collapse={…}). Delegated so a
-// single document listener covers every fold across view-transition navigations.
+// Toggles collapsible code regions: line-range folds (collapse={…}) and
+// whole-block folds (collapsed). Delegated so a single document listener covers
+// every fold across view-transition navigations.
 ---
 
 <script>
     let bound = false;
+
+    function toggle(toggleEl: Element, foldEl: Element) {
+        const open = foldEl.getAttribute('data-open') === 'true';
+        foldEl.setAttribute('data-open', String(!open));
+        toggleEl.setAttribute('aria-expanded', String(!open));
+    }
 
     function initCodeFold() {
         if (bound) return;
         bound = true;
         document.addEventListener('click', (e) => {
             if (!(e.target instanceof Element)) return;
-            const toggle = e.target.closest('.code-fold__toggle');
-            if (!toggle) return;
-            const fold = toggle.closest('.code-fold');
-            if (!fold) return;
-            const open = fold.getAttribute('data-open') === 'true';
-            fold.setAttribute('data-open', String(!open));
-            toggle.setAttribute('aria-expanded', String(!open));
+            const line = e.target.closest('.code-fold__toggle');
+            if (line) {
+                const fold = line.closest('.code-fold');
+                if (fold) toggle(line, fold);
+                return;
+            }
+            const block = e.target.closest('.code-shell__expand');
+            if (block) {
+                const shell = block.closest('.code-shell[data-collapsible]');
+                if (shell) toggle(block, shell);
+            }
         });
     }
 
