@@ -46,6 +46,9 @@ const fileSlug = slug ?? title.toLowerCase().replace(/\s+/g, '-');
         <BaseHead title={title} description={description} ogImage={ogImage} />
     </head>
     <body>
+        <!-- Google Tag Manager (noscript) -->
+        <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-T789JMTX" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+        <!-- End Google Tag Manager (noscript) -->
         <Header command={`cat ${fileSlug}.md`}>
             <Fragment slot="path"><a href="/">~/den</a>/<a href="/blog">log</a></Fragment>
         </Header>

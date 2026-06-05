@@ -20,6 +20,20 @@ const ogImageURL = ogImage ? new URL(ogImage, Astro.site) : new URL(image.src, A
 ---
 
 <meta charset="utf-8" />
+<!-- Google Tag Manager -->
+<script is:inline>
+	(function (w, d, s, l, i) {
+		w[l] = w[l] || [];
+		w[l].push({ 'gtm.start': new Date().getTime(), event: 'gtm.js' });
+		var f = d.getElementsByTagName(s)[0],
+			j = d.createElement(s),
+			dl = l != 'dataLayer' ? '&l=' + l : '';
+		j.async = true;
+		j.src = 'https://www.googletagmanager.com/gtm.js?id=' + i + dl;
+		f.parentNode.insertBefore(j, f);
+	})(window, document, 'script', 'dataLayer', 'GTM-T789JMTX');
+</script>
+<!-- End Google Tag Manager -->
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <meta name="theme-color" content="#0a1c13" />
 <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
@@ -32,6 +46,7 @@ const ogImageURL = ogImage ? new URL(ogImage, Astro.site) : new URL(image.src, A
 	href={new URL('rss.xml', Astro.site)}
 />
 <meta name="generator" content={Astro.generator} />
+<meta name="google-site-verification" content="xjXj-499dwXPQjlqTgkPvW0WC0A__HqonQdw9tO0Vcg" />
 
 <Font cssVariable="--font-serif" />
 <Font cssVariable="--font-mono" />
