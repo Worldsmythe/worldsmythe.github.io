@@ -13,15 +13,25 @@
         bound = true;
         document.addEventListener('click', async (e) => {
             if (!(e.target instanceof Element)) return;
-            const btn = e.target.closest('.code-shell__copy');
+            const btn = e.target.closest('.code-shell__copy, .terminal__copy');
             if (!btn) return;
-            const code = btn.closest('.code-shell')?.querySelector('.code-shell__code');
-            if (!code) return;
 
-            const text = Array.from(code.querySelectorAll('.line'))
-                .filter((line) => line.getAttribute('data-del') !== 'true')
-                .map((line) => line.textContent ?? '')
-                .join('\n');
+            let text: string;
+            const term = btn.closest('.terminal');
+            if (term) {
+                // Copy the commands only — prompts are CSS pseudo-elements, so the
+                // line text is already the bare command.
+                text = Array.from(term.querySelectorAll('.terminal__line[data-cmd]'))
+                    .map((line) => line.textContent ?? '')
+                    .join('\n');
+            } else {
+                const code = btn.closest('.code-shell')?.querySelector('.code-shell__code');
+                if (!code) return;
+                text = Array.from(code.querySelectorAll('.line'))
+                    .filter((line) => line.getAttribute('data-del') !== 'true')
+                    .map((line) => line.textContent ?? '')
+                    .join('\n');
+            }
 
             try {
                 await navigator.clipboard.writeText(text);

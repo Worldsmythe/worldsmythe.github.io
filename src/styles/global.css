@@ -630,6 +630,130 @@ textarea { width: 100%; }
 .code-shell__corners { display: none; }
 
 /* ============================================================
+   TERMINAL (remark-terminal) — shell session: command + output
+   ============================================================ */
+.terminal {
+    position: relative;
+    margin: 1.8em 0;
+    border: var(--rule) solid var(--line);
+    background: var(--code-bg);
+    font-family: var(--font-mono-stack);
+    overflow: hidden;
+}
+.terminal__bar {
+    display: flex;
+    align-items: center;
+    gap: 1ch;
+    padding: 0.45em 0.75em;
+    border-bottom: var(--rule) solid var(--line);
+    background: var(--bg);
+    color: var(--ink-mut);
+    font-family: var(--font-mono-stack);
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+}
+.terminal__bar::before {
+    content: "";
+    width: 9px;
+    height: 9px;
+    background: var(--lime);
+    box-shadow: 0 0 8px var(--lime);
+    flex: none;
+}
+.terminal__tag { font-weight: 700; color: var(--lime); }
+.terminal__title { color: var(--ink-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.terminal__rule { flex: 1; height: 0; border-top: var(--rule-hair) dashed var(--line-dim); }
+.terminal__copy {
+    flex: none;
+    border: var(--rule-hair) solid var(--line-dim);
+    background: transparent;
+    color: var(--ink-mut);
+    font-family: var(--font-mono-stack);
+    font-size: 0.66rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 0.25em 0.7em;
+    cursor: pointer;
+    -webkit-user-select: none;
+    user-select: none;
+    transition:
+        color 150ms ease,
+        background 150ms ease,
+        border-color 150ms ease;
+}
+.terminal__copy:hover,
+.terminal__copy:focus-visible {
+    color: var(--bg);
+    background: var(--lime);
+    border-color: var(--lime);
+    outline: none;
+}
+.terminal__copy[data-copied='true'],
+.terminal__copy[data-copied='true']:hover {
+    color: var(--bg);
+    background: var(--amber);
+    border-color: var(--amber);
+}
+.terminal__body {
+    margin: 0;
+    padding: 0.85em 0;
+    background: transparent;
+    overflow-x: auto;
+}
+.terminal__code {
+    display: block;
+    width: max-content;
+    min-width: 100%;
+    font-family: var(--font-mono-stack);
+    font-size: 0.85rem;
+    line-height: 1.55;
+    background: transparent;
+    color: var(--ink-dim);
+    border: 0;
+    padding: 0;
+    white-space: normal;
+    /* output isn't selectable; command lines opt back in below */
+    -webkit-user-select: none;
+    user-select: none;
+}
+.terminal__line {
+    display: block;
+    min-height: 1.55em;
+    padding: 0 1.25em;
+    white-space: pre;
+}
+/* command lines: prompt glyph in accent, command text bright */
+.terminal__line[data-cmd] {
+    color: var(--ink);
+    -webkit-user-select: text;
+    user-select: text;
+}
+.terminal__line[data-cmd]::before,
+.terminal__cursorline::before {
+    content: attr(data-prompt) " ";
+    color: var(--lime);
+    user-select: none;
+}
+/* a resting block cursor on a fresh prompt line below the output, seated level
+   with the prompt glyph (bottom on the baseline, height ~the glyph cap). */
+.terminal__cursor {
+    display: inline-block;
+    width: 0.55em;
+    height: 0.9em;
+    vertical-align: -0.12em;
+    background: var(--lime);
+    opacity: 0.55;
+    animation: terminal-blink 1.1s steps(1) infinite;
+}
+@keyframes terminal-blink {
+    50% { opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .terminal__cursor { animation: none; }
+}
+
+/* ============================================================
    TRACE (remark-trace) — two-pane state + execution frame
    ============================================================ */
 .trace {
